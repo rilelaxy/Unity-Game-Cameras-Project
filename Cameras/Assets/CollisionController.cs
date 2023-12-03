@@ -1,72 +1,45 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class CollisionController : MonoBehaviour
-{   
-    public bool changeColor;
-    public Color myColor;
-
-    public bool destroyEnemy;
+{
     public bool destroyCollectibles;
     public float pushPower = 2.0f;
 
-
-    public AudioClip collisionAudio;
-    AudioSource audioSource;
-
-    void Start()
+    void OnCollisionEnter(Collision collision)
     {
-        audioSource = GetComponent<AudioSource>();
+        HandleCollision(collision.collider);
     }
 
-    // only for GameObjects with a mesh, box, or other collider except for character controller and wheel colliders
-    void OnCollisionEnter(Collision other)
-    {
-        if(changeColor == true){
-            gameObject.GetComponent<Renderer>().material.color = myColor;
-        }
-
-        if(audioSource != null && !audioSource.isPlaying){
-            audioSource.PlayOneShot(collisionAudio, 0.5F);
-        }
-
-        if(destroyEnemy == true && other.gameObject.tag == "Enemy" || destroyCollectibles == true && other.gameObject.tag == "Collectible"){
-            Destroy(other.gameObject);
-        }
-    }
-
-    // only for GameObjects with a character controller applied
     void OnControllerColliderHit(ControllerColliderHit hit)
     {
-        Rigidbody body = hit.collider.attachedRigidbody;
+        HandleCollision(hit.collider);
+    }
 
-        // if no rigidbody
-        if (body == null || body.isKinematic)
+    void HandleCollision(Collider collider)
+    {
+        if (collider.gameObject.tag == "Ground")
         {
-            return;
+            // Destroy the game object this script is attached to (the bullet prefab)
+            Destroy(gameObject);
         }
-
-        // don't push ground or platform GameObjects below player
-        if (hit.moveDirection.y < -0.3)
+        else if (collider.gameObject.tag == "Player2")
         {
-            return;
+            // Modify Player2Health using the Movement2 script
+            Movement2 movement2 = collider.gameObject.GetComponent<Movement2>();
+
+            if (movement2 != null)
+            {
+                // Set Player2Health to -1 or any other desired value
+                movement2.Player2Health -= 1;
+                Destroy(gameObject);
+            }
+        }
+        else if (destroyCollectibles && collider.gameObject.tag == "Collectible")
+        {
+            // Destroy the collided object (Collectible)
+            Destroy(collider.gameObject);
         }
 
-        // calculate push direction from move direction, only along x and z axes - no vertical pushing
-        Vector3 pushDir = new Vector3(hit.moveDirection.x, 0, hit.moveDirection.z);
-
-        // apply the push and character's velocity to the pushed object
-        if(hit.gameObject.tag == "Object"){
-            body.velocity = pushDir * pushPower;
-        }
-
-        if(audioSource != null && !audioSource.isPlaying){
-            audioSource.PlayOneShot(collisionAudio, 0.5F);
-        }
-
-        if(destroyEnemy == true && hit.gameObject.tag == "Enemy" || destroyCollectibles == true && hit.gameObject.tag == "Collectible"){
-            Destroy(hit.gameObject);
-        }
+        // Add additional logic here if needed
     }
 }

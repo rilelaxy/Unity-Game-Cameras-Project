@@ -10,7 +10,7 @@ public class LaunchProjectile : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetButtonDown("Fire3"))
+        if (Input.GetKeyDown("p"))
         {
             Launch();
         }
@@ -24,7 +24,7 @@ public class LaunchProjectile : MonoBehaviour
 
     void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject.CompareTag("Player1")) {
+        if (collision.gameObject.CompareTag("Player2")) {
             Destroy(gameObject);
         }
     }

@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Movement2 : MonoBehaviour
@@ -16,11 +14,22 @@ public class Movement2 : MonoBehaviour
 
     public Vector3 moveDir = Vector3.zero;
 
+    // Health variable
+    public int Player2Health = 5; // Adjust the initial health value as needed
+
     // Starting Function
     void Start()
     {
-        controller = GetComponent<CharacterController> ();
-        anim = GetComponent<Animator> ();
+        controller = GetComponent<CharacterController>();
+        anim = GetComponent<Animator>();
+    }
+
+    // Function to decrease health
+    public void DecreaseHealth(int amount)
+    {
+        Player2Health -= amount;
+
+        // Additional logic for handling health changes can be added here
     }
 
     // Game Loop
@@ -29,41 +38,53 @@ public class Movement2 : MonoBehaviour
     {
         // When player presses Up Arrow, character moves forward.
         // When player presses Right or Left Arrow keys, character rotates direction.
-        if (controller.isGrounded){
-            if (Input.GetKey(KeyCode.W)){
+        if (controller.isGrounded)
+        {
+            if (Input.GetKey(KeyCode.W))
+            {
                 anim.SetInteger("condition", 1);
                 running = true;
-                moveDir = new Vector3 (0, 0, 1);
+                moveDir = new Vector3(0, 0, 1);
                 moveDir *= speed;
                 moveDir = transform.TransformDirection(moveDir);
-            } else {
+            }
+            else
+            {
                 anim.SetInteger("condition", 0);
-                moveDir = new Vector3 (0, 0, 0);
+                moveDir = new Vector3(0, 0, 0);
                 running = false;
             }
 
-            if (Input.GetKey(KeyCode.S)){
+            if (Input.GetKey(KeyCode.S))
+            {
                 anim.SetInteger("jump", 1);
-                if (running){
+                if (running)
+                {
                     float slightMove = 0.5f;
-                    moveDir = new Vector3 (0, 2, slightMove);
-                } else {
-                    moveDir = new Vector3 (0, 1, 0);
+                    moveDir = new Vector3(0, 2, slightMove);
+                }
+                else
+                {
+                    moveDir = new Vector3(0, 1, 0);
                 }
                 moveDir *= speed;
                 moveDir = transform.TransformDirection(moveDir);
-            } else {
+            }
+            else
+            {
                 anim.SetInteger("jump", 0);
             }
-            
-            if (Input.GetKey(KeyCode.D)){
+
+            if (Input.GetKey(KeyCode.D))
+            {
                 rot += rotSpeed * Time.deltaTime;
-                transform.eulerAngles = new Vector3 (0, rot, 0);
+                transform.eulerAngles = new Vector3(0, rot, 0);
             }
 
-            if (Input.GetKey(KeyCode.A)){
+            if (Input.GetKey(KeyCode.A))
+            {
                 rot -= rotSpeed * Time.deltaTime;
-                transform.eulerAngles = new Vector3 (0, rot, 0);
+                transform.eulerAngles = new Vector3(0, rot, 0);
             }
         }
 

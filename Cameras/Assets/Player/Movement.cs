@@ -4,70 +4,49 @@ using UnityEngine;
 
 public class Movement : MonoBehaviour
 {
-    // Variables
-    public CharacterController controller;
-    public Animator anim;
+    public float speed = 4f;
+    public float rotSpeed = 90f;
+    public float gravity = 8f;
+    public float jumpForce = 10f;
 
-    public float speed = 4;
-    public float rotSpeed = 90;
-    public float rot = 0f;
-    public float gravity = 8;
-    public bool running = false;
-
-    public Vector3 moveDir = Vector3.zero;
-
-    // Starting Function
-    void Start()
+    private void Update()
     {
-        controller = GetComponent<CharacterController> ();
-        anim = GetComponent<Animator> ();
+        // Rotate the UFO based on arrow keys
+        RotateUFO();
+
+        // Move the UFO forward
+        MoveUFO();
+
+        // Check for jump input
+        if (Input.GetButtonDown("Jump"))
+        {
+            Jump();
+        }
     }
 
-    // Game Loop
-    // Update is called once per frame
-    void Update()
+    private void RotateUFO()
     {
-        // When player presses Up Arrow, character moves forward.
-        // When player presses Right or Left Arrow keys, character rotates direction.
-        if (controller.isGrounded){
-            if (Input.GetKey(KeyCode.UpArrow)){
-                anim.SetInteger("condition", 1);
-                running = true;
-                moveDir = new Vector3 (0, 0, 1);
-                moveDir *= speed;
-                moveDir = transform.TransformDirection(moveDir);
-            } else {
-                anim.SetInteger("condition", 0);
-                moveDir = new Vector3 (0, 0, 0);
-                running = false;
-            }
+        float horizontalInput = Input.GetAxis("Horizontal2");
+        transform.Rotate(0f, horizontalInput * rotSpeed * Time.deltaTime, 0f);
+    }
 
-            if (Input.GetKey(KeyCode.Space)){
-                anim.SetInteger("jump", 1);
-                if (running){
-                    float slightMove = 0.5f;
-                    moveDir = new Vector3 (0, 2, slightMove);
-                } else {
-                    moveDir = new Vector3 (0, 1, 0);
-                }
-                moveDir *= speed;
-                moveDir = transform.TransformDirection(moveDir);
-            } else {
-                anim.SetInteger("jump", 0);
-            }
+    private void MoveUFO()
+    {
+        float verticalInput = Input.GetAxis("Vertical2");
 
-            if (Input.GetKey(KeyCode.RightArrow)){
-                rot += rotSpeed * Time.deltaTime;
-                transform.eulerAngles = new Vector3 (0, rot, 0);
-            }
+        // Move the UFO forward
+        Vector3 moveDirection = transform.forward * verticalInput * speed;
 
-            if (Input.GetKey(KeyCode.LeftArrow)){
-                rot -= rotSpeed * Time.deltaTime;
-                transform.eulerAngles = new Vector3 (0, rot, 0);
-            }
-        }
+        // Apply gravity
+        moveDirection.y -= gravity * Time.deltaTime;
 
-        moveDir.y -= gravity * Time.deltaTime;
-        controller.Move(moveDir * Time.deltaTime);
+        // Move the UFO
+        transform.Translate(moveDirection * Time.deltaTime, Space.World);
+    }
+
+    private void Jump()
+    {
+        // Apply a vertical force for jumping
+        GetComponent<Rigidbody>().AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
     }
 }
